@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/mniAddRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/ic_add_record"
+        android:title=""
+        app:showAsAction="always"/>
+
+
+    <item
+        android:id="@+id/mniSearchBook"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/ic_search_book"
+        android:title=""
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/mniRestoreView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/ic_restore_view"
+        android:title=""
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/mniBooksManager"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Cadastro de Livros" />
+    <item
+        android:id="@+id/mniRecordsManager"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Histórico de Leitura" />
+    <item
+        android:id="@+id/mniBackup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Backup/Restore" />
+
+    <item
+        android:id="@+id/mniAbout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/ic_info_write"
+        android:title="Sobre"/>
+
+</menu>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="button_save_background">#F0F0F0</color>
+    <color name="button_background">#A6A7B6</color>
+    <color name="section_title_color">#FF0000</color>
+    <color name="record_text_color">#053377</color>
+    <color name="main_button_color">#F3E4FC00</color>
+</resources>
