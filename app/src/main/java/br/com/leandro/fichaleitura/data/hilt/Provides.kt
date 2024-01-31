@@ -28,7 +28,7 @@ object Provides {
     @Singleton
     @Provides
     fun provideRecord(appDatabase: AppDatabase): RecordDao {
-        return appDatabase.getReadingRecordDao()
+        return appDatabase.getRecordDao()
     }
 
 }

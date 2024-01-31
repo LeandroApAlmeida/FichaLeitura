@@ -15,6 +15,7 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import br.com.leandro.fichaleitura.R
 import br.com.leandro.fichaleitura.android.FilesManager
@@ -24,21 +25,25 @@ import br.com.leandro.fichaleitura.data.viewmodel.CoroutineListener
 import br.com.leandro.fichaleitura.data.viewmodel.RecordViewModel
 import br.com.leandro.fichaleitura.databinding.ActivityMainBinding
 import br.com.leandro.fichaleitura.image.Photo
+import br.com.leandro.fichaleitura.report.ReportBuilder
 import br.com.leandro.fichaleitura.ui.activity.BackupActivity
 import br.com.leandro.fichaleitura.ui.activity.BooksManagerActivity
 import br.com.leandro.fichaleitura.ui.activity.RecordActivity
 import br.com.leandro.fichaleitura.ui.activity.RecordManagerActivity
 import br.com.leandro.fichaleitura.ui.dialog.BookDetailDialog
 import br.com.leandro.fichaleitura.ui.dialog.CalendarDialog
+import br.com.leandro.fichaleitura.ui.dialog.DateRangeDialog
 import br.com.leandro.fichaleitura.ui.dialog.FilterDialog
 import br.com.leandro.fichaleitura.ui.dialog.MessageDialog
 import br.com.leandro.fichaleitura.ui.recyclerview.adapter.DefaultAdapter
 import br.com.leandro.fichaleitura.utils.dateToText
 import br.com.leandro.fichaleitura.utils.getSystemTime
-import br.com.leandro.fichaleitura.utils.hourToText
 import br.com.leandro.fichaleitura.utils.isEmptyText
+import br.com.leandro.fichaleitura.utils.textToDate
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Date
 import java.util.Locale
@@ -53,6 +58,7 @@ class MainActivity : AppCompatActivity(), CoroutineListener {
     private val recordViewModel: RecordViewModel by viewModels()
     private var listIsReadingCompleted: Boolean = true
     private var listIsReadingNotCompleted: Boolean = true
+    private var listIsReadingDeleted: Boolean = true
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,10 +100,11 @@ class MainActivity : AppCompatActivity(), CoroutineListener {
         when (item.itemId) {
 
             R.id.mniSearchBook -> {
-                FilterDialog(this, listIsReadingNotCompleted, listIsReadingCompleted)
-                .setOnConfirmButtonClickHandler { isReadingNotCompleted, isReadingCompleted ->
+                FilterDialog(this, listIsReadingNotCompleted, listIsReadingCompleted, listIsReadingDeleted)
+                .setOnConfirmButtonClickHandler { isReadingNotCompleted, isReadingCompleted, isReadingDeleted ->
                     this.listIsReadingNotCompleted = isReadingNotCompleted
                     this.listIsReadingCompleted = isReadingCompleted
+                    this.listIsReadingDeleted = isReadingDeleted
                     listAllRecords()
                 }.show()
             }
@@ -114,6 +121,14 @@ class MainActivity : AppCompatActivity(), CoroutineListener {
                 startActivity(Intent(this, RecordManagerActivity::class.java))
             }
 
+            R.id.mniReadingRecordReport -> {
+                printReport("FICHA DE LEITURA", ReportBuilder.READING_RECORD_REPORT)
+            }
+
+            R.id.mniReadingCanceledReport -> {
+                printReport("LEITURAS CANCELADAS", ReportBuilder.CANCELED_READING_REPORT)
+            }
+
             R.id.mniBackup -> {
                 startActivity(Intent(this, BackupActivity::class.java))
             }
@@ -121,6 +136,7 @@ class MainActivity : AppCompatActivity(), CoroutineListener {
             R.id.mniRestoreView -> {
                 listIsReadingCompleted = true
                 listIsReadingNotCompleted = true
+                listIsReadingDeleted = true
                 listAllRecords()
             }
 
@@ -131,7 +147,8 @@ class MainActivity : AppCompatActivity(), CoroutineListener {
                     "\nDESENVOLVEDOR:" +
                     "\nLeandro A. Almeida" +
                     "\n\nVERSÃO:" +
-                    "\n1.0.0")
+                    "\n1.0.0"
+                )
             }
 
         }
@@ -143,21 +160,34 @@ class MainActivity : AppCompatActivity(), CoroutineListener {
 
     private fun listAllRecords() {
         val customAdapter = (binding.rcvMainReadingRecordList.adapter as CustomAdapter)
-        if (listIsReadingCompleted && listIsReadingNotCompleted) {
-            recordViewModel.getAllRecords(this).observe(this) { recordsList ->
-                customAdapter.data = recordsList
-            }
-        } else if (listIsReadingNotCompleted) {
-            recordViewModel.getAllReadingNotCompleted(this).observe(this) { recordsList ->
-                customAdapter.data = recordsList
-            }
-        } else if (listIsReadingCompleted) {
-            recordViewModel.getAllReadingCompleted(this).observe(this) { recordsList ->
-                customAdapter.data = recordsList
-            }
-        } else {
-            customAdapter.data = mutableListOf()
+        recordViewModel.getAllRecords(listIsReadingCompleted, listIsReadingNotCompleted,
+        listIsReadingDeleted, this).observe(this) { recordsList ->
+            customAdapter.data = recordsList
         }
+    }
+
+
+    private fun printReport(title: String, reportId: Int) {
+        val owner = this
+        val beginDate: Date = textToDate("01/01/190000:00:00")
+        val endDate: Date = textToDate("31/12/999923:59:59")
+        DateRangeDialog(this, title, beginDate, endDate).setOnPrintButtonClickHandler { beginDate, endDate ->
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    ReportBuilder(owner).printReport(
+                        reportId,
+                        beginDate,
+                        endDate
+                    )
+                } catch (ex: Exception) {
+                    MessageDialog.show(
+                        owner,
+                        "Erro",
+                        ex.message
+                    )
+                }
+            }
+        }.show()
     }
 
 
@@ -172,7 +202,7 @@ class MainActivity : AppCompatActivity(), CoroutineListener {
             return false
         }
 
-        @SuppressLint("WrongConstant")
+        @SuppressLint("WrongConstant", "ResourceType")
         override fun onBinding(view: View, item: Record, position: Int) {
 
             val imvRecordLayoutCover: ImageView = view.findViewById(R.id.imvRecordLayoutCover)
@@ -254,34 +284,37 @@ class MainActivity : AppCompatActivity(), CoroutineListener {
                 }
 
                 val beginDate = Date(item.beginDate)
-                txvRecordLayoutBeginDate.text = "${dateToText(beginDate)}  ${hourToText(beginDate)}"
+                txvRecordLayoutBeginDate.text = dateToText(beginDate)
 
                 txvRecordLayoutEndDate.setTextColor(Color.parseColor(getString(R.color.record_text_color)))
 
                 if (!item.isDeleted) {
                     if (item.readingCompleted) {
                         val endDate: Date? = if (item.endDate != null) Date(item.endDate!!) else null
-                        txvRecordLayoutEndDate.text = "${dateToText(endDate!!)}  ${hourToText(endDate)}"
+                        txvRecordLayoutEndDate.text = dateToText(endDate!!)
                     } else {
                         if (!isEmptyText(book.filePath)) {
                             fabRecordLayoutLink.setOnClickListener {
-                                try {
-                                    val file = File(book.filePath)
-                                    val intent = Intent(Intent.ACTION_VIEW)
-                                    val uri = Uri.fromFile(file)
-                                    intent.setDataAndType(uri, contentResolver.getType(uri))
-                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    startActivity(intent)
-                                } catch (ex: Exception) {
-                                    MessageDialog.show(owner, "Erro", ex.message)
+                                if (!isEmptyText(book.filePath)) {
+                                    try {
+                                        val uri = Uri.parse(book.filePath)
+                                        val type = "pdf/*"
+                                        FilesManager.openFile(
+                                            owner,
+                                            File(uri.path),
+                                            type
+                                        )
+                                    } catch (ex: Exception) {
+                                        MessageDialog.show(owner, "Erro", ex.message)
+                                    }
                                 }
                             }
                         }
                         txvRecordLayoutEndDate.setTextColor(Color.RED)
-                        txvRecordLayoutEndDate.text = "LENDO AINDA!"
+                        txvRecordLayoutEndDate.text = "NÃO CONCLUÍDA"
                     }
                 } else {
-                    txvRecordLayoutEndDate.text = "CANCELADO"
+                    txvRecordLayoutEndDate.text = "CANCELADA"
                 }
 
             }

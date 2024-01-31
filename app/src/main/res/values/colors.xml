@@ -7,4 +7,5 @@
     <color name="section_title_color">#FF0000</color>
     <color name="record_text_color">#053377</color>
     <color name="main_button_color">#F3E4FC00</color>
+    <color name="gray_background_1">#DCDFDC</color>
 </resources>

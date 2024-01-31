@@ -73,7 +73,6 @@ class BookDbDatasource @Inject constructor(
         }
     }
 
-
     override suspend fun getBookCover(idBook: String) = withContext(IO) {
         async {
             bookDao.getBookCover(idBook)

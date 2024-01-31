@@ -6,11 +6,12 @@ import android.os.Bundle
 import br.com.leandro.fichaleitura.databinding.DialogLayoutFilterBinding
 
 class FilterDialog(context: Context, private val readingNotCompleted: Boolean,
-private val readingCompleted: Boolean): Dialog(context) {
+private val readingCompleted: Boolean, private val readingDeleted: Boolean): Dialog(context) {
 
 
     private lateinit var binding: DialogLayoutFilterBinding
-    private var onConfirmButtonClickHandler: ((readingNotCompleted: Boolean, readingCompleted: Boolean) -> Unit)? = null
+    private var onConfirmButtonClickHandler: ((readingNotCompleted: Boolean, readingCompleted: Boolean,
+    readingDeleted: Boolean) -> Unit)? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,11 +23,13 @@ private val readingCompleted: Boolean): Dialog(context) {
 
         binding.swcFilterLayoutReadingNotCompleted.isChecked = readingNotCompleted
         binding.swcFilterLayoutReadingCompleted.isChecked = readingCompleted
+        binding.swcFilterLayoutReadingDeleted.isChecked = readingDeleted
 
         binding.btnFilterLayoutOk.setOnClickListener {
             onConfirmButtonClickHandler!!.invoke(
                 binding.swcFilterLayoutReadingNotCompleted.isChecked,
-                binding.swcFilterLayoutReadingCompleted.isChecked
+                binding.swcFilterLayoutReadingCompleted.isChecked,
+                binding.swcFilterLayoutReadingDeleted.isChecked
             )
             dismiss()
         }
@@ -35,7 +38,7 @@ private val readingCompleted: Boolean): Dialog(context) {
 
 
     fun setOnConfirmButtonClickHandler(onConfirmButtonClickHandler: ((readingNotCompleted: Boolean,
-    readingCompleted: Boolean) -> Unit)?): FilterDialog {
+    readingCompleted: Boolean, readingDeleted: Boolean) -> Unit)?): FilterDialog {
         this.onConfirmButtonClickHandler = onConfirmButtonClickHandler
         return this
     }

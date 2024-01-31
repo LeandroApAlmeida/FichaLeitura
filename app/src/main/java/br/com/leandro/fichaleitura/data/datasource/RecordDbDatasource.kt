@@ -4,6 +4,7 @@ import br.com.leandro.fichaleitura.data.model.Record
 import br.com.leandro.fichaleitura.data.repository.RecordRepository
 import br.com.leandro.fichaleitura.database.dao.RecordDao
 import br.com.leandro.fichaleitura.database.entity.RecordEntity
+import br.com.leandro.fichaleitura.utils.getSystemTime
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
@@ -54,7 +55,7 @@ class RecordDbDatasource @Inject constructor(
     override suspend fun deleteRecord(idRecord: String): Unit = withContext(IO) {
         val recordEntity = recordDao.getRecordById(idRecord)
         if (recordEntity != null) {
-            recordDao.deleteRecord(recordEntity.id)
+            recordDao.deleteRecord(recordEntity.id, getSystemTime())
         }
     }
 
@@ -84,7 +85,7 @@ class RecordDbDatasource @Inject constructor(
 
     override suspend fun getAllRecords() = withContext(IO) {
         async {
-            val recordEntityList = recordDao.getAllRecords()
+            val recordEntityList = recordDao.getAllRecordsDesc()
             val recordList: MutableList<Record> = mutableListOf()
             recordEntityList.forEach { recordEntity ->
                 recordList.add(recordEntity.toReadingRecord())
@@ -96,7 +97,20 @@ class RecordDbDatasource @Inject constructor(
 
     override suspend fun getAllRecords(beginDate: Long, endDate: Long) = withContext(IO) {
         async {
-            val recordEntityList = recordDao.getAllRecords(beginDate, endDate)
+            val recordEntityList = recordDao.getAllRecordsDesc(beginDate, endDate)
+            val recordList: MutableList<Record> = mutableListOf()
+            recordEntityList.forEach { recordEntity ->
+                recordList.add(recordEntity.toReadingRecord())
+            }
+            recordList
+        }
+    }
+
+
+    override suspend fun getAllRecords(isReadingCompleted: Boolean, isReadingNotCompleted: Boolean,
+    isReadingDeleted: Boolean) = withContext(IO) {
+        async {
+            val recordEntityList = recordDao.getAllRecordsDesc(isReadingCompleted, isReadingNotCompleted, isReadingDeleted)
             val recordList: MutableList<Record> = mutableListOf()
             recordEntityList.forEach { recordEntity ->
                 recordList.add(recordEntity.toReadingRecord())

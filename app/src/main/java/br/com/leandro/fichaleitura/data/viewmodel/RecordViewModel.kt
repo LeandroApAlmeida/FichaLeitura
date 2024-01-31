@@ -94,6 +94,21 @@ class RecordViewModel @Inject constructor(
     }
 
 
+    fun getAllRecords(isReadingCompleted: Boolean, isReadingNotCompleted: Boolean,
+    isReadingDeleted: Boolean, listener: CoroutineListener): LiveData<List<Record>> {
+        val result = MutableLiveData<List<Record>>()
+        val handler = CoroutineExceptionHandler { _, ex -> listener.onCoroutineException(ex) }
+        viewModelScope.launch(handler) {
+            result.postValue(recordRepository.getAllRecords(
+                isReadingCompleted,
+                isReadingNotCompleted,
+                isReadingDeleted
+            ).await())
+        }
+        return result
+    }
+
+
     fun getAllRecords(beginDate: Long, endDate: Long, listener: CoroutineListener): LiveData<List<Record>> {
         val result = MutableLiveData<List<Record>>()
         val handler = CoroutineExceptionHandler { _, ex -> listener.onCoroutineException(ex) }

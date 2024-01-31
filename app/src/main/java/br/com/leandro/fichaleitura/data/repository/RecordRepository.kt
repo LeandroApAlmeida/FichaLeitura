@@ -19,6 +19,9 @@ interface RecordRepository {
 
     suspend fun getAllRecords(): Deferred<List<Record>>
 
+    suspend fun getAllRecords(isReadingCompleted: Boolean, isReadingNotCompleted: Boolean,
+    isReadingDeleted: Boolean): Deferred<List<Record>>
+
     suspend fun getAllRecords(beginDate: Long, endDate: Long): Deferred<List<Record>>
 
     suspend fun getAllReadingCompleted(): Deferred<List<Record>>

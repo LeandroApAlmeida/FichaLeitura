@@ -37,6 +37,25 @@
         android:layout_height="wrap_content"
         android:title="Histórico de Leitura" />
     <item
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Relatórios" >
+        <menu
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <item
+                android:id="@+id/mniReadingRecordReport"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:title="Ficha de Leitura" />
+            <item
+                android:id="@+id/mniReadingCanceledReport"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:title="Leituras Canceladas" />
+        </menu>
+    </item>
+    <item
         android:id="@+id/mniBackup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

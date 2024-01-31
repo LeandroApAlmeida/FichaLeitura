@@ -37,7 +37,7 @@ abstract class AppDatabase: RoomDatabase() {
 
     abstract fun getBookDao(): BookDao
 
-    abstract fun getReadingRecordDao(): RecordDao
+    abstract fun getRecordDao(): RecordDao
 
 
     fun disconnect() {

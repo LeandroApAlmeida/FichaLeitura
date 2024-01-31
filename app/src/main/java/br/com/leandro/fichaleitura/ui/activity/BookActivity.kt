@@ -300,7 +300,7 @@ class BookActivity : AppCompatActivity(), CoroutineListener {
                         textToInt(releaseYear)!!,
                         cover,
                         summary,
-                        coverUri?.path
+                        coverUri?.toString()
                     )
 
                     bookViewModel.insertBook(book!!, this).observe(this) {
@@ -321,7 +321,7 @@ class BookActivity : AppCompatActivity(), CoroutineListener {
                     book!!.releaseYear = textToInt(releaseYear)!!
                     book!!.cover = cover
                     book!!.summary = summary
-                    book!!.filePath = coverUri?.path
+                    book!!.filePath = coverUri?.toString()
                     book!!.lastUpdateDate = getSystemTime()
 
                     bookViewModel.updateBook(book!!, this).observe(this) {

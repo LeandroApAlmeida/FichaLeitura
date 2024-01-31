@@ -49,10 +49,10 @@
 
             <TextView
                 android:id="@+id/textView28"
-                android:layout_width="130dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
-                android:text="INÍCIO LEITURA:  "
+                android:text="INÍCIO DA LEITURA:  "
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -75,10 +75,10 @@
 
             <TextView
                 android:id="@+id/textView30"
-                android:layout_width="130dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
-                android:text="FINAL LEITURA:  "
+                android:text="FINAL DA LEITURA:  "
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
