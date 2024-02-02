@@ -30,6 +30,10 @@ interface RecordDao {
     suspend fun terminateReading(idRecord: String, endDate: Long)
 
 
+    @Query("UPDATE record SET reading_completed = 0, end_date = null WHERE id = :idRecord")
+    suspend fun restoreReading(idRecord: String)
+
+
     @Query("UPDATE record SET reading_completed = 1 WHERE id = :idRecord")
     suspend fun readingTerminated(idRecord: String)
 

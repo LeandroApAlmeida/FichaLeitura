@@ -82,12 +82,22 @@
         app:layout_constraintStart_toStartOf="@+id/textView20"
         app:layout_constraintTop_toBottomOf="@+id/textView29" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btnRecordsManagerAlter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_marginBottom="-5dp"
-        android:text="Modificar"
+        android:src="@drawable/ic_edit"
         app:layout_constraintBottom_toBottomOf="@+id/imvRecordsManagerCover"
         app:layout_constraintStart_toStartOf="@+id/txvRecordsManagerEndDate" />
+
+    <ImageButton
+        android:id="@+id/btnRecordsManagerRestore"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/btnRecordsManagerAlter"
+        app:layout_constraintStart_toEndOf="@+id/btnRecordsManagerAlter"
+        app:layout_constraintTop_toTopOf="@+id/btnRecordsManagerAlter"
+        app:srcCompat="@drawable/ic_restore_rec" />
 </androidx.constraintlayout.widget.ConstraintLayout>

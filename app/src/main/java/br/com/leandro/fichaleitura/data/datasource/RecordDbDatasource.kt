@@ -76,6 +76,14 @@ class RecordDbDatasource @Inject constructor(
     }
 
 
+    override suspend fun restoreReading(idRecord: String): Unit = withContext(IO) {
+        val recordEntity = recordDao.getRecordById(idRecord)
+        if (recordEntity != null) {
+            recordDao.restoreReading(recordEntity.id)
+        }
+    }
+
+
     override suspend fun getRecord(idRecord: String) = withContext(IO) {
         async {
             recordDao.getRecordById(idRecord)?.toReadingRecord()

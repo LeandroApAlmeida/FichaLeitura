@@ -74,6 +74,17 @@ class RecordViewModel @Inject constructor(
     }
 
 
+    fun restoreReading(record: Record, listener: CoroutineListener): LiveData<Boolean> {
+        val result = MutableLiveData<Boolean>()
+        val handler = CoroutineExceptionHandler { _, ex -> listener.onCoroutineException(ex) }
+        viewModelScope.launch(handler) {
+            recordRepository.restoreReading(record.id)
+            result.postValue(true)
+        }
+        return result
+    }
+
+
     fun getRecord(idRecord: String, listener: CoroutineListener): LiveData<Record?> {
         val result = MutableLiveData<Record?>()
         val handler = CoroutineExceptionHandler { _, ex -> listener.onCoroutineException(ex) }

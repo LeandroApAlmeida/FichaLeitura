@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -83,37 +84,44 @@ class RecordManagerActivity : AppCompatActivity(), CoroutineListener {
             val txvRecordsManagerTitle: TextView = view.findViewById(R.id.txvRecordsManagerTitle)
             val txvRecordsManagerBeginDate: TextView = view.findViewById(R.id.txvRecordsManagerBeginDate)
             val txvRecordsManagerEndDate: TextView = view.findViewById(R.id.txvRecordsManagerEndDate)
-            val btnRecordsManagerAlter: Button = view.findViewById(R.id.btnRecordsManagerAlter)
+            val btnRecordsManagerAlter: ImageButton = view.findViewById(R.id.btnRecordsManagerAlter)
+            val btnRecordsManagerRestore: ImageButton = view.findViewById(R.id.btnRecordsManagerRestore)
 
             val beginDate = Date(item.beginDate)
             txvRecordsManagerBeginDate.text = "${dateToText(beginDate)}  ${hourToText(beginDate)}"
 
             if (!item.isDeleted) {
-                btnRecordsManagerAlter.text = "Modificar"
+                btnRecordsManagerAlter.isEnabled = true
                 val endDate = Date(item.endDate!!)
                 txvRecordsManagerEndDate.text = "${dateToText(endDate)}  ${hourToText(endDate)}"
             } else {
-                btnRecordsManagerAlter.text = "Restaurar"
+                btnRecordsManagerAlter.isEnabled = false
                 txvRecordsManagerEndDate.text = "CANCELADO"
             }
 
             btnRecordsManagerAlter.setOnClickListener {
-                if (!item.isDeleted) {
-                    val intent = Intent(owner, RecordActivity::class.java)
-                    intent.putExtra("id_record", item.id)
-                    startActivity(intent)
-                } else {
-                    with(AlertDialog.Builder(owner)) {
-                        setTitle("Atenção")
-                        setMessage("Confirma a reativação da leitura?")
-                        setPositiveButton("Sim") { _, _ ->
+                val intent = Intent(owner, RecordActivity::class.java)
+                intent.putExtra("id_record", item.id)
+                startActivity(intent)
+            }
+
+            btnRecordsManagerRestore.setOnClickListener {
+                with(AlertDialog.Builder(owner)) {
+                    setTitle("Atenção")
+                    setMessage("Confirma a reativação da leitura?")
+                    setPositiveButton("Sim") { _, _ ->
+                        if (!item.isDeleted) {
+                            recordViewModel.restoreReading(item, owner).observe(owner) {
+                                listAllRecords()
+                            }
+                        } else {
                             recordViewModel.undeleteRecord(item, owner).observe(owner) {
                                 listAllRecords()
                             }
                         }
-                        setNegativeButton("Não", null)
-                        show()
                     }
+                    setNegativeButton("Não", null)
+                    show()
                 }
             }
 

@@ -15,6 +15,8 @@ interface RecordRepository {
 
     suspend fun terminateReading(idRecord: String, endDate: Long)
 
+    suspend fun restoreReading(idRecord: String)
+
     suspend fun getRecord(idRecord: String): Deferred<Record?>
 
     suspend fun getAllRecords(): Deferred<List<Record>>
