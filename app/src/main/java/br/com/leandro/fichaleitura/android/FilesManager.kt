@@ -90,7 +90,8 @@ object FilesManager {
 
     fun openFile(file: File, fileType: String) {
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(Uri.fromFile(file), fileType)
+        val uri = Uri.fromFile(file)
+        intent.setDataAndType(uri, fileType)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         Application.getInstance().startActivity(intent)
     }

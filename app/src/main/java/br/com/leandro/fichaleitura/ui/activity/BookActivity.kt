@@ -27,6 +27,7 @@ import br.com.leandro.fichaleitura.utils.intToText
 import br.com.leandro.fichaleitura.utils.isEmptyText
 import br.com.leandro.fichaleitura.utils.textToInt
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
 
 @AndroidEntryPoint
 class BookActivity : AppCompatActivity(), CoroutineListener {
@@ -213,7 +214,8 @@ class BookActivity : AppCompatActivity(), CoroutineListener {
             val data: Intent? = result.data
             data?.data?.also { uri ->
                 coverUri = uri
-                binding.edtBookFilePath.setText(coverUri!!.path)
+                val file = File(uri.path)
+                binding.edtBookFilePath.setText(file.absolutePath)
             }
         }
     }
@@ -300,7 +302,7 @@ class BookActivity : AppCompatActivity(), CoroutineListener {
                         textToInt(releaseYear)!!,
                         cover,
                         summary,
-                        coverUri?.toString()
+                        coverUri?.path
                     )
 
                     bookViewModel.insertBook(book!!, this).observe(this) {
@@ -321,7 +323,7 @@ class BookActivity : AppCompatActivity(), CoroutineListener {
                     book!!.releaseYear = textToInt(releaseYear)!!
                     book!!.cover = cover
                     book!!.summary = summary
-                    book!!.filePath = coverUri?.toString()
+                    book!!.filePath = coverUri?.path
                     book!!.lastUpdateDate = getSystemTime()
 
                     bookViewModel.updateBook(book!!, this).observe(this) {

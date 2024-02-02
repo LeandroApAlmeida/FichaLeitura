@@ -1,5 +1,6 @@
 package br.com.leandro.fichaleitura.ui.launch
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
@@ -10,6 +11,7 @@ import android.os.StrictMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -18,6 +20,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import br.com.leandro.fichaleitura.R
+import br.com.leandro.fichaleitura.android.FileUtils
 import br.com.leandro.fichaleitura.android.FilesManager
 import br.com.leandro.fichaleitura.data.model.Record
 import br.com.leandro.fichaleitura.data.viewmodel.BookViewModel
@@ -30,7 +33,6 @@ import br.com.leandro.fichaleitura.ui.activity.BackupActivity
 import br.com.leandro.fichaleitura.ui.activity.BooksManagerActivity
 import br.com.leandro.fichaleitura.ui.activity.RecordActivity
 import br.com.leandro.fichaleitura.ui.activity.RecordManagerActivity
-import br.com.leandro.fichaleitura.ui.dialog.BookDetailDialog
 import br.com.leandro.fichaleitura.ui.dialog.CalendarDialog
 import br.com.leandro.fichaleitura.ui.dialog.DateRangeDialog
 import br.com.leandro.fichaleitura.ui.dialog.FilterDialog
@@ -41,6 +43,7 @@ import br.com.leandro.fichaleitura.utils.getSystemTime
 import br.com.leandro.fichaleitura.utils.isEmptyText
 import br.com.leandro.fichaleitura.utils.textToDate
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.karumi.dexter.Dexter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -78,6 +81,10 @@ class MainActivity : AppCompatActivity(), CoroutineListener {
         FilesManager.checkPermissions(this)
         FilesManager.clearCache()
         Locale.setDefault(Locale("pt", "BR"))
+
+        Dexter.withContext(this).withPermission(Manifest.permission.MANAGE_DOCUMENTS)
+        Dexter.withContext(this).withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+        Dexter.withContext(this).withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     }
 
@@ -267,10 +274,6 @@ class MainActivity : AppCompatActivity(), CoroutineListener {
 
             bookViewModel.getBook(item.idBook, owner).observe(owner) { book ->
 
-                imvRecordLayoutCover.setOnClickListener {
-                    BookDetailDialog(owner, book!!).show()
-                }
-
                 if (book?.cover != null) {
                     imvRecordLayoutCover.setImageBitmap(Photo.toBitmap(book.cover!!))
                 } else {
@@ -297,13 +300,23 @@ class MainActivity : AppCompatActivity(), CoroutineListener {
                             fabRecordLayoutLink.setOnClickListener {
                                 if (!isEmptyText(book.filePath)) {
                                     try {
-                                        val uri = Uri.parse(book.filePath)
-                                        val type = "pdf/*"
-                                        FilesManager.openFile(
-                                            owner,
-                                            File(uri.path),
-                                            type
-                                        )
+                                        if (!isEmptyText(book.filePath)) {
+                                            val path = book.filePath!!.replace("document", "storage", false)
+                                            .replace("primary", "emulated/0/").replace(":", "/")
+                                            val file = File(path)
+                                            var type: String? = null
+                                            var extension: String? = null
+                                            val i: Int = path.lastIndexOf('.')
+                                            if (i > 0) extension = path.substring(i + 1)
+                                            if (extension != null) type = MimeTypeMap.getSingleton()
+                                            .getMimeTypeFromExtension(extension)
+                                            val intent = Intent(Intent.ACTION_VIEW)
+                                            intent.setDataAndType(Uri.fromFile(file), type)
+                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                            startActivity(
+                                                Intent.createChooser(intent, "Abrir com")
+                                            )
+                                        }
                                     } catch (ex: Exception) {
                                         MessageDialog.show(owner, "Erro", ex.message)
                                     }

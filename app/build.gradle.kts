@@ -93,4 +93,6 @@ dependencies {
     implementation ("com.itextpdf:kernel:7.0.2")
     implementation ("com.itextpdf:layout:7.0.2")
 
+    implementation ("com.karumi:dexter:6.2.3")
+
 }
